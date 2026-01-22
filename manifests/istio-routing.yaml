@@ -1,0 +1,73 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: app-gw
+  namespace: app-dev
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: java-app
+  namespace: app-dev
+spec:
+  host: java-app.app-dev.svc.cluster.local
+  subsets:
+  - name: v-android
+    labels:
+      version: android
+  - name: v-ios
+    labels:
+      version: ios
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: java-app-vs
+  namespace: app-dev
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - app-gw
+  http:
+  - match:
+    - uri:
+        prefix: /app
+      headers:
+        user-agent:
+          regex: ".*Android.*"
+    route:
+    - destination:
+        host: java-app.app-dev.svc.cluster.local
+        subset: v-android
+
+  - match:
+    - uri:
+        prefix: /app
+      headers:
+        user-agent:
+          regex: ".*(iPhone|iPad|iOS).*"
+    route:
+    - destination:
+        host: java-app.app-dev.svc.cluster.local
+        subset: v-ios
+
+  - match:
+    - uri:
+        prefix: /app
+    route:
+    - destination:
+        host: java-app.app-dev.svc.cluster.local
+        subset: v-ios
