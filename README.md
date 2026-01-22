@@ -6,6 +6,7 @@ For this demo, I am using minikube to setup cluster and deploy.
 Repo Structure
 
 istio-user-agent-routing-demo/
+
 ├── README.md
 ├── manifests/
 │   ├── app.yaml
@@ -21,18 +22,22 @@ istio-user-agent-routing-demo/
 ################# IMPORTANT ######################
 
 git clone https://github.com/mahendrakakarla/istio-user-agent-routing-demo.git
+
 cd istio-user-agent-routing-demo
 
 ./scripts/start-minikube.sh
+
 ./scripts/install-istio.sh
 
 kubectl apply -f manifests/app.yaml
+
 kubectl apply -f manifests/istio-routing.yaml
 
 ./scripts/port-forward.sh
 
 On New terminal: 
 To test urls - use curl command as showing in step-7 below
+
 By using script use - 
 		./validation/validate-ua-routing.sh
 
