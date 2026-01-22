@@ -1,25 +1,4 @@
-######################
-
-Design and explain an end‑to‑end solution where Terraform provisions an AWS EKS cluster, you deploy one Java microservice that has two versions (v-android and v-ios) as separate container deployments, and you configure Istio so that calls to the same HTTP endpoint are routed to the correct version based on the HTTP User-Agent (Android vs iOS).
-
-For this demo, I am using minikube to setup cluster and deploy.
-Repo Structure
-
-istio-user-agent-routing-demo/
-
-├── README.md
-├── manifests/
-│   ├── app.yaml
-│   └── istio-routing.yaml
-├── scripts/
-│   ├── start-minikube.sh
-│   ├── install-istio.sh
-│   └── port-forward.sh
-├── test/
-│   └── test-ua-routing.sh
-└── .gitignore
-
-################# IMPORTANT ######################
+##############IMPORTANT
 
 git clone https://github.com/mahendrakakarla/istio-user-agent-routing-demo.git
 
@@ -35,13 +14,50 @@ kubectl apply -f manifests/istio-routing.yaml
 
 ./scripts/port-forward.sh
 
-On New terminal: 
-To test urls - use curl command as showing in step-7 below
+On New terminal:
 
-By using script use - 
-		./validation/validate-ua-routing.sh
+To test urls - use curl command 
 
-########################################################
+                  for android - curl -s -H "User-Agent: Android" http://localhost:8080/app
+                  for iOS - curl -s -H "User-Agent: iPhone" http://localhost:8080/app
+                  for default fallback - curl -s http://localhost:8080/app
+
+By using script use -
+
+                ./validation/validate-ua-routing.sh
+
+
+######################
+
+use minikube cluster and deploy one Java microservice that has two versions (v-android and v-ios) as separate container deployments, and you configure Istio so that calls to the same HTTP endpoint are routed to the correct version based on the HTTP User-Agent (Android vs iOS).
+
+
+Repo Structure
+
+istio-user-agent-routing-demo/
+
+├── README.md
+
+├── manifests/
+
+│   ├── app.yaml
+
+│   └── istio-routing.yaml
+
+├── scripts/
+
+│   ├── start-minikube.sh
+
+│   ├── install-istio.sh
+
+│   └── port-forward.sh
+
+├── test/
+
+│   └── test-ua-routing.sh
+
+└── .gitignore
+
 
 --------------------------------Manual Steps----------------------------------
 
@@ -57,8 +73,11 @@ By using script use -
 
 STEP 1: 
 1.1 Install Minikube binary
+
 curl -LO https://github.com/kubernetes/minikube/releases/download/v1.37.0/minikube-darwin-arm64
+
 chmod +x minikube-darwin-arm64
+
 sudo mv minikube-darwin-arm64 /usr/local/bin/minikube
 
 1.2 minikube version
@@ -66,6 +85,7 @@ sudo mv minikube-darwin-arm64 /usr/local/bin/minikube
 1.3 minikube start --driver=docker --cpus=2 --memory=2048
 
 1.4 Verify Minikube Health
+
 	kubectl get nodes
 	minikube status
 
@@ -84,26 +104,34 @@ STEP 2: Install Istio
 
 
 STEP 3: Create App Namespace + Enable Sidecar Injection
+
 kubectl create namespace app-dev
+
 kubectl label namespace app-dev istio-injection=enabled --overwrite
+
 	kubectl get namespace app-dev --show-labels
 
 STEP 4: Deploy Android + iOS App Versions
-4.1 Create app manifest
+
+Create app manifest
 
 Create file app.yaml and apply kubectl apply -f app.yaml
+
 	Verify: kubectl get pods -n app-dev
 
 STEP 5: Configure Istio Routing (User-Agent Based)
+
 5.1 Create Istio routing manifest
 
 Create file istio-routing.yaml and apply kubectl apply -f istio-routing.yaml
+
 	Verify: kubectl get gateway,virtualservice,destinationrule -n app-dev
 
 <img width="540" height="509" alt="image" src="https://github.com/user-attachments/assets/ebbe25bd-a25b-4b12-b2a4-96eaed28deb3" />
 
 
 STEP 6: Expose Istio Ingress Locally
+
 Port-forward the Istio ingress gateway: kubectl -n istio-system port-forward svc/istio-ingressgateway 8080:80
 
 <img width="540" height="292" alt="image" src="https://github.com/user-attachments/assets/9b05c076-3f02-4ddc-9f04-167ad4879c5b" />
@@ -116,12 +144,13 @@ Open a new terminal.
 
 
 Android request validation: curl -H "User-Agent: Mozilla/5.0 (Linux; Android 14)" http://localhost:8080/app 
+
 output: Hello from ANDROID version
 
 iOS request validation: curl -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)" http://localhost:8080/app
+
 output: Hello from IOS version
 
 No User-Agent (fallback) validation: curl http://localhost:8080/app
+
 output: Hello from ANDROID version
-
-
