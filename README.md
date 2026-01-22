@@ -60,17 +60,28 @@ STEP 1:
 curl -LO https://github.com/kubernetes/minikube/releases/download/v1.37.0/minikube-darwin-arm64
 chmod +x minikube-darwin-arm64
 sudo mv minikube-darwin-arm64 /usr/local/bin/minikube
+
 1.2 minikube version
+
 1.3 minikube start --driver=docker --cpus=2 --memory=2048
+
 1.4 Verify Minikube Health
 	kubectl get nodes
 	minikube status
 
+<img width="540" height="453" alt="image" src="https://github.com/user-attachments/assets/cedd7899-8901-43c1-a49f-a8c5654ccd84" />
+
+
+<img width="540" height="449" alt="image" src="https://github.com/user-attachments/assets/bec1250e-0489-4947-95b3-9a0be9c25b05" />
+
+
 STEP 2: Install Istio
 2.1 Verify istioctl
 	istioctl version
+	
 2.2 Install Istio
 	istioctl install --set profile=demo -y
+
 
 STEP 3: Create App Namespace + Enable Sidecar Injection
 kubectl create namespace app-dev
@@ -89,12 +100,20 @@ STEP 5: Configure Istio Routing (User-Agent Based)
 Create file istio-routing.yaml and apply kubectl apply -f istio-routing.yaml
 	Verify: kubectl get gateway,virtualservice,destinationrule -n app-dev
 
+<img width="540" height="509" alt="image" src="https://github.com/user-attachments/assets/ebbe25bd-a25b-4b12-b2a4-96eaed28deb3" />
+
 
 STEP 6: Expose Istio Ingress Locally
 Port-forward the Istio ingress gateway: kubectl -n istio-system port-forward svc/istio-ingressgateway 8080:80
 
+<img width="540" height="292" alt="image" src="https://github.com/user-attachments/assets/9b05c076-3f02-4ddc-9f04-167ad4879c5b" />
+
+
 STEP 7: TEST
 Open a new terminal.
+
+<img width="540" height="76" alt="image" src="https://github.com/user-attachments/assets/45218c23-03c0-47af-a6a0-4343b62601c9" />
+
 
 Android request validation: curl -H "User-Agent: Mozilla/5.0 (Linux; Android 14)" http://localhost:8080/app 
 output: Hello from ANDROID version
